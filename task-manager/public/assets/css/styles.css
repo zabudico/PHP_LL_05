@@ -1,0 +1,32 @@
+/* Базовые стили */
+body {
+  font-family: "Segoe UI", system-ui;
+  background-color: #f8f9fa;
+}
+
+.task-card {
+  transition: transform 0.2s;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.priority-indicator {
+  width: 8px;
+  border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.priority-low {
+  background-color: #28a745;
+}
+.priority-medium {
+  background-color: #ffc107;
+}
+.priority-high {
+  background-color: #dc3545;
+}
