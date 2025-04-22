@@ -12,15 +12,25 @@ function getDbConnection(): PDO
     if ($pdo === null) {
         $config = require __DIR__ . '/config/db.php';
 
-        try {
-            $pdo = new PDO(
-                "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8mb4",
-                $config['username'],
-                $config['password'],
-                $config['options']
-            );
-        } catch (PDOException $e) {
-            throw new PDOException("Connection failed: " . $e->getMessage());
+        $maxAttempts = 10;
+        $attempt = 0;
+
+        while ($attempt < $maxAttempts) {
+            try {
+                $pdo = new PDO(
+                    "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8mb4",
+                    $config['username'],
+                    $config['password'],
+                    $config['options']
+                );
+                break; // Успешное подключение, выходим из цикла
+            } catch (PDOException $e) {
+                if ($attempt === $maxAttempts - 1) {
+                    throw new PDOException("Connection failed after $maxAttempts attempts: " . $e->getMessage());
+                }
+                $attempt++;
+                sleep(1); // Ждем 1 секунду перед следующей попыткой
+            }
         }
     }
 

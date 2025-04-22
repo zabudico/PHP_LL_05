@@ -7,13 +7,14 @@
 
 declare(strict_types=1); // Включение строгой типизации
 
-// require __DIR__ . '/../vendor/autoload.php';  возможно в будующем буду использовать Composer
-require __DIR__ . '/../src/helpers.php';
-require __DIR__ . '/../src/db.php';
+require_once __DIR__ . '/../src/helpers.php';
+require_once __DIR__ . '/../src/db.php';
 
 try {
     // Обработка базовых настроек
-    ini_set('display_errors', '0');
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
     session_start();
 
     // Валидация действия
@@ -29,7 +30,7 @@ try {
     }
 
     // Проверка метода запроса для критических операций
-    if (in_array($action, ['delete', 'edit', 'create']) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    if (in_array($action, ['delete']) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
         renderError(405, 'Метод не разрешен');
         exit;
     }

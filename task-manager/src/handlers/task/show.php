@@ -1,38 +1,32 @@
 <?php
 /**
- * Обработчик просмотра деталей задачи
- * 
- * @throws PDOException При ошибках работы с базой данных
+ * Обработчик просмотра задачи
  */
-function handleTaskShow(): void
-{
+
+try {
     $id = (int) ($_GET['id'] ?? 0);
-
     if ($id <= 0) {
-        renderError(400, 'Неверный ID задачи');
+        renderError(404, 'Задача не найдена');
+        exit;
     }
 
-    try {
-        $pdo = getDbConnection();
-        $stmt = $pdo->prepare("
-            SELECT t.*, c.name AS category_name 
-            FROM tasks t
-            JOIN categories c ON t.category_id = c.id
-            WHERE t.id = :id
-        ");
-        $stmt->execute([':id' => $id]);
-        $task = $stmt->fetch();
+    $pdo = getDbConnection();
+    $stmt = $pdo->prepare("
+        SELECT t.*, c.name as category_name
+        FROM tasks t
+        LEFT JOIN categories c ON t.category_id = c.id
+        WHERE t.id = ?
+    ");
+    $stmt->execute([$id]);
+    $task = $stmt->fetch();
 
-        if (!$task) {
-            renderError(404, 'Задача не найдена');
-        }
-
-        render('task/show', ['task' => $task]);
-
-    } catch (PDOException $e) {
-        error_log($e->getMessage());
-        renderError(500, 'Ошибка при загрузке задачи');
+    if (!$task) {
+        renderError(404, 'Задача не найдена');
+        exit;
     }
+
+    render('task/show', ['task' => $task]);
+
+} catch (PDOException $e) {
+    renderError(500, 'Ошибка просмотра задачи: ' . $e->getMessage());
 }
-
-handleTaskShow();

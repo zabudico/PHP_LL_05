@@ -1,47 +1,21 @@
 <?php
 /**
- * Обработчик отображения списка задач с пагинацией
- * 
- * @throws PDOException При ошибках работы с базой данных
+ * Обработчик получения списка задач
  */
-function handleTaskList(): void
-{
+
+try {
     $pdo = getDbConnection();
 
-    // Пагинация
-    $currentPage = max(1, (int) ($_GET['page'] ?? 1));
-    $perPage = 5;
-    $offset = ($currentPage - 1) * $perPage;
+    $stmt = $pdo->query("
+        SELECT t.*, c.name as category_name
+        FROM tasks t
+        LEFT JOIN categories c ON t.category_id = c.id
+        ORDER BY t.created_at DESC
+    ");
+    $tasks = $stmt->fetchAll();
 
-    try {
-        // Получение задач
-        $stmt = $pdo->prepare("
-            SELECT t.*, c.name AS category_name 
-            FROM tasks t
-            JOIN categories c ON t.category_id = c.id
-            ORDER BY t.created_at DESC
-            LIMIT :limit OFFSET :offset
-        ");
+    render('task/list', ['tasks' => $tasks]);
 
-        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $tasks = $stmt->fetchAll();
-
-        // Подсчет общего количества
-        $totalTasks = $pdo->query("SELECT COUNT(*) FROM tasks")->fetchColumn();
-        $totalPages = (int) ceil($totalTasks / $perPage);
-
-    } catch (PDOException $e) {
-        throw new PDOException("Ошибка загрузки задач: " . $e->getMessage());
-    }
-
-    render('task/list', [
-        'tasks' => $tasks,
-        'currentPage' => $currentPage,
-        'totalPages' => $totalPages
-    ]);
+} catch (PDOException $e) {
+    renderError(500, 'Ошибка получения списка задач: ' . $e->getMessage());
 }
-
-handleTaskList();

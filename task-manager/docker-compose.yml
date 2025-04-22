@@ -3,7 +3,8 @@ services:
     image: nginx:alpine
     ports: [ "8080:80" ]
     volumes:
-      - ./src:/var/www/html
+      - ./public:/var/www/html/public
+      - ./src:/var/www/html/src
       - ./docker/nginx:/etc/nginx/conf.d
     depends_on:
       - php-fpm
@@ -18,9 +19,11 @@ services:
       - DB_USER=${MYSQL_USER}
       - DB_PASS=${MYSQL_PASSWORD}
     volumes:
-      - ./src:/var/www/html
+      - ./public:/var/www/html/public
+      - ./src:/var/www/html/src
     depends_on:
       - mysql
+    command: php-fpm
 
   mysql:
     image: mysql:8.0

@@ -1,9 +1,13 @@
 <?php
 /**
- * Экранирует HTML-сущности
+ * Вспомогательные функции приложения
+ */
+
+/**
+ * Экранирование данных для предотвращения XSS
  * 
- * @param string $value Входная строка
- * @return string Очищенная строка
+ * @param string $value Строка для экранирования
+ * @return string Экранированная строка
  */
 function e(string $value): string
 {
@@ -11,80 +15,32 @@ function e(string $value): string
 }
 
 /**
- * Рендерит шаблон с использованием лейаута
+ * Рендеринг шаблона с передачей данных
  * 
- * @param string $template Название шаблона (без расширения)
- * @param array $data Данные для передачи в шаблон
+ * @param string $template Путь к шаблону
+ * @param array $data Данные для шаблона
+ * @param string $layout Путь к макету
+ * @return void
  */
-function render(string $template, array $data = []): void
+function render(string $template, array $data = [], string $layout = 'layout'): void
 {
     extract($data);
     ob_start();
-    include __DIR__ . "/templates/{$template}.php";
+    require __DIR__ . "/templates/{$template}.php";
     $content = ob_get_clean();
-    include __DIR__ . '/templates/layout.php';
+    require __DIR__ . "/templates/{$layout}.php";
 }
 
 /**
- * Выполняет редирект на указанный URL
+ * Рендеринг страницы ошибки
  * 
- * @param string $url Целевой URL
- */
-function redirect(string $url): void
-{
-    header("Location: {$url}");
-    exit;
-}
-
-/**
- * Валидирует данные задачи
- * 
- * @param array $data Массив данных формы
- * @return array Массив ошибок валидации
- */
-function validateTask(array $data): array
-{
-    $errors = [];
-
-    // Валидация названия
-    if (empty(trim($data['title'] ?? ''))) {
-        $errors['title'] = 'Название обязательно';
-    } elseif (mb_strlen($data['title']) > 255) {
-        $errors['title'] = 'Название не должно превышать 255 символов';
-    }
-
-    // Валидация категории
-    if (!isset($data['category_id']) || !is_numeric($data['category_id'])) {
-        $errors['category'] = 'Неверная категория';
-    }
-
-    return $errors;
-}
-
-/**
- * Рендерит страницу ошибки
- * 
- * @param int $statusCode HTTP-код статуса
+ * @param int $code Код ошибки (404, 500 и т.д.)
  * @param string $message Сообщение об ошибке
+ * @return void
  */
-function renderError(int $statusCode, string $message): void
+function renderError(int $code, string $message): void
 {
-    http_response_code($statusCode);
-    render("errors/{$statusCode}", ['message' => $message]);
-    exit;
-}
-
-/**
- * Обрезает текст до указанной длины
- * 
- * @param string $text Исходный текст
- * @param int $length Максимальная длина
- * @return string Обрезанный текст
- */
-function truncateText(string $text, int $length = 100): string
-{
-    if (mb_strlen($text) > $length) {
-        return mb_substr($text, 0, $length) . '...';
-    }
-    return $text;
+    http_response_code($code);
+    $template = file_exists(__DIR__ . "/templates/errors/{$code}.php") ? "errors/{$code}" : "errors/error";
+    render($template, ['code' => $code, 'message' => $message]);
 }

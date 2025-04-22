@@ -1,58 +1,21 @@
 <?php
-/** 
- * Шаблон страницы просмотра задачи
+/**
+ * Шаблон просмотра задачи
  * 
  * @var array $task Данные задачи
  */
-$title = e($task['title']);
-ob_start();
 ?>
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-header">
-            <h2><?= e($task['title']) ?></h2>
-        </div>
 
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-8">
-                    <h5>Описание</h5>
-                    <p><?= nl2br(e($task['description'])) ?></p>
-                </div>
+<h2>Просмотр задачи</h2>
 
-                <div class="col-md-4">
-                    <div class="mb-4">
-                        <h5>Детали</h5>
-                        <ul class="list-group">
-                            <li class="list-group-item">
-                                <strong>Категория:</strong>
-                                <?= e($task['category_name']) ?>
-                            </li>
-                            <li class="list-group-item">
-                                <strong>Приоритет:</strong>
-                                <?= match ($task['priority']) {
-                                    1 => 'Низкий',
-                                    2 => 'Средний',
-                                    3 => 'Высокий'
-                                } ?>
-                            </li>
-                            <li class="list-group-item">
-                                <strong>Статус:</strong>
-                                <?= $task['status'] ? '✅ Завершено' : '🟡 В процессе' ?>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <a href="/?action=edit&id=<?= $task['id'] ?>" class="btn btn-primary">
-                            Редактировать
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title"><?= e($task['title']) ?></h5>
+        <p class="card-text"><strong>Описание:</strong> <?= e($task['description'] ?? 'Нет описания') ?></p>
+        <p class="card-text"><strong>Категория:</strong> <?= e($task['category_name'] ?? 'Без категории') ?></p>
+        <p class="card-text"><strong>Статус:</strong> <?= e($task['status']) ?></p>
+        <p class="card-text"><strong>Дата создания:</strong> <?= e($task['created_at']) ?></p>
+        <a href="/?action=edit&id=<?= $task['id'] ?>" class="btn btn-primary">Редактировать</a>
+        <a href="/?action=list" class="btn btn-secondary">Назад</a>
     </div>
 </div>
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../layout.php';

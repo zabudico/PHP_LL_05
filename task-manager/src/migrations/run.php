@@ -4,7 +4,7 @@
  * 
  * @throws PDOException При ошибках выполнения SQL
  */
-require __DIR__ . '/../config/bootstrap.php';
+require __DIR__ . '/../db.php';
 
 try {
     $pdo = getDbConnection();
