@@ -1,8 +1,10 @@
 <?php
 /**
- * Шаблон списка задач
+ * Шаблон списка задач с пагинацией
  * 
  * @var array $tasks Список задач
+ * @var int $currentPage Текущая страница
+ * @var int $totalPages Общее количество страниц
  */
 ?>
 
@@ -42,6 +44,34 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+
+    <!-- Навигация для пагинации -->
+    <?php if ($totalPages > 1): ?>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <!-- Предыдущая страница -->
+                <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link" href="/?action=list&page=<?= $currentPage - 1 ?>" aria-label="Previous">
+                        <span aria-hidden="true">«</span>
+                    </a>
+                </li>
+
+                <!-- Номера страниц -->
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
+                        <a class="page-link" href="/?action=list&page=<?= $i ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <!-- Следующая страница -->
+                <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                    <a class="page-link" href="/?action=list&page=<?= $currentPage + 1 ?>" aria-label="Next">
+                        <span aria-hidden="true">»</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
 <?php endif; ?>
 
 <a href="/?action=create" class="btn btn-primary">Новая задача</a>

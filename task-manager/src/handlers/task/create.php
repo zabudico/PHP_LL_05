@@ -1,8 +1,12 @@
 <?php
 /**
  * Обработчик создания новой задачи
+ * 
+ * Этот обработчик обрабатывает GET-запрос для отображения формы создания задачи
+ * и POST-запрос для сохранения новой задачи в базе данных.
+ * 
+ * @throws PDOException При ошибках évident базы данных
  */
-
 try {
     // Define valid status options
     $validStatuses = ['Pending', 'In Progress', 'Completed'];
@@ -22,6 +26,14 @@ try {
                 'validStatuses' => $validStatuses
             ]);
             exit;
+        }
+
+        // Validate category_id
+        $categories = getCategories();
+        $validCategoryIds = array_column($categories, 'id');
+        if ($category_id === 0 || !in_array($category_id, $validCategoryIds)) {
+            // Если category_id = 0 или недопустим, используем первую категорию
+            $category_id = $validCategoryIds[0] ?? 1; // Первая категория или 1 по умолчанию
         }
 
         // Validate status
@@ -58,7 +70,10 @@ try {
 }
 
 /**
- * Helper function to fetch categories (for reuse in case of validation error)
+ * Получение списка категорий из базы данных
+ * 
+ * @return array Массив категорий с полями id и name
+ * @throws PDOException При ошибках базы данных
  */
 function getCategories()
 {
